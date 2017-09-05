@@ -26,6 +26,7 @@ import com.noctarius.borabora.spi.io.Decoder;
 import com.noctarius.borabora.spi.query.QueryContext;
 import com.noctarius.borabora.spi.query.QueryContextAware;
 
+import java.io.OutputStream;
 import java.util.function.Supplier;
 
 /**
@@ -74,6 +75,12 @@ public abstract class AbstractStreamValue
     public byte[] bytes() {
         return extract(() -> matchMajorType(majorType(), MajorType.ByteString), //
                 () -> Decoder.extractStringBytes(input(), offset()));
+    }
+
+    @Override
+    public Integer bytes(OutputStream outputStream) {
+        return extract(() -> matchMajorType(majorType(), MajorType.ByteString), //
+                () -> Decoder.extractStringBytes(input(), offset(), outputStream));
     }
 
     @Override

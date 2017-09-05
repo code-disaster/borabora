@@ -24,6 +24,7 @@ import com.noctarius.borabora.ValueType;
 import com.noctarius.borabora.ValueTypes;
 import com.noctarius.borabora.WrongTypeException;
 
+import java.io.OutputStream;
 import java.util.Objects;
 import java.util.function.Supplier;
 
@@ -105,6 +106,11 @@ public class ObjectValue
     @Override
     public byte[] bytes() {
         return extract(() -> matchMajorType(majorType, MajorType.ByteString), (Supplier<byte[]>) supplier);
+    }
+
+    @Override
+    public Integer bytes(OutputStream outputStream) {
+        return extract(() -> matchMajorType(majorType, MajorType.ByteString), (Supplier<Integer>) supplier);
     }
 
     @Override

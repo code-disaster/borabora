@@ -30,8 +30,7 @@ import com.noctarius.borabora.spi.RelocatableStreamValue;
 import com.noctarius.borabora.spi.StreamValue;
 import com.noctarius.borabora.spi.query.QueryContext;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
@@ -340,6 +339,46 @@ public final class Decoder
         byte[] bytes = new byte[dataSize];
         input.read(bytes, offset + headByteSize, dataSize);
         return bytes;
+    }
+
+    public static int extractStringBytes(Input input, long offset, OutputStream outputStream) {
+        int headByteSize = ByteSizes.headByteSize(input, offset);
+        int addInfo = additionalInfo(input, offset);
+
+        if (addInfo == ADD_INFO_INDEFINITE) {
+            offset += headByteSize;
+            int totalSize = 0;
+            do {
+                int itemHeadByteSize = ByteSizes.headByteSize(input, offset);
+                int dataSize = extractStringBytes(input, offset, itemHeadByteSize, outputStream);
+                offset += (itemHeadByteSize + dataSize);
+                totalSize += dataSize;
+            } while ((Decoder.readUInt8(input, offset) & OPCODE_BREAK_MASK) != OPCODE_BREAK_MASK);
+            return totalSize;
+        }
+
+        return extractStringBytes(input, offset, headByteSize, outputStream);
+    }
+
+    private static int extractStringBytes(Input input, long offset, int headByteSize, OutputStream outputStream) {
+        // Cannot be larger than Integer.MAX_VALUE as this is checked in Decoder
+        int dataSize = (int) ByteSizes.stringDataSize(input, offset);
+        if (dataSize == 0) {
+            return 0;
+        }
+        try {
+            int remaining = dataSize;
+            offset = offset + headByteSize;
+            while (remaining > 0) {
+                byte b = input.read(offset);
+                outputStream.write(b);
+                remaining--;
+                offset++;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to collect data", e);
+        }
+        return dataSize;
     }
 
     public static Instant parseDate(String date) {

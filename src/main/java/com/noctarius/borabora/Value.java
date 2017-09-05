@@ -16,6 +16,8 @@
  */
 package com.noctarius.borabora;
 
+import java.io.OutputStream;
+
 /**
  * A <tt>Value</tt> represents a known or unknown data item in borabora. While CBOR is type-safe in terms
  * of data items, it is schema-less overall, or better said the schema is defined by the elements inside
@@ -116,6 +118,8 @@ public interface Value {
      * @return the extracted value
      */
     byte[] bytes();
+
+    Integer bytes(OutputStream outputStream);
 
     /**
      * Extracts the given Value as a CBOR encoded byte-array. This doesn't transform the value in any way

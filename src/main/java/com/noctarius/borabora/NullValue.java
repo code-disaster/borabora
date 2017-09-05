@@ -16,6 +16,8 @@
  */
 package com.noctarius.borabora;
 
+import java.io.OutputStream;
+
 import static com.noctarius.borabora.spi.io.Constants.EMPTY_BYTE_ARRAY;
 
 final class NullValue
@@ -66,6 +68,11 @@ final class NullValue
 
     @Override
     public byte[] bytes() {
+        return null;
+    }
+
+    @Override
+    public Integer bytes(OutputStream outputStream) {
         return null;
     }
 
